@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SN STORE - অ্যাডমিন প্যানেল</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+        body { background: #f1f5f9; color: #1e293b; padding-bottom: 50px; }
+        #loginScreen { display: flex; justify-content: center; align-items: center; height: 100vh; padding: 20px; }
+        .login-box { background: #fff; padding: 25px; border-radius: 10px; width: 100%; max-width: 350px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
+        .login-box h2 { color: #f85606; margin-bottom: 18px; }
+        .login-box input { width: 100%; padding: 12px; margin-bottom: 14px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
+        .login-box button { width: 100%; padding: 12px; background: #f85606; color: #fff; border: none; border-radius: 5px; font-weight: bold; font-size: 16px; }
+        #msg { color: red; font-size: 13px; margin-top: 10px; }
+
+        #dashboard { display: none; }
+        header { background: #1e293b; color: #fff; padding: 14px; display: flex; justify-content: space-between; align-items: center; }
+        .tabs { display: flex; background: #fff; border-bottom: 1px solid #ddd; }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: none; font-weight: bold; }
+        .tab-btn.active { color: #f85606; border-bottom: 3px solid #f85606; }
+        .container { padding: 14px; max-width: 700px; margin: auto; }
+        .card { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; }
+        .form-group input, .form-group select { width: 100%; padding: 9px; border: 1px solid #ccc; border-radius: 5px; }
+        .btn-add { background: #f85606; color: #fff; border: none; padding: 12px; width: 100%; border-radius: 5px; font-weight: bold; }
+        .prod-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 10px 0; gap: 10px; }
+        .prod-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; }
+        .badge { padding: 2px 6px; border-radius: 8px; font-size: 10px; color: #fff; }
+        .in-stock { background: #16a34a; }
+        .out-stock { background: #dc2626; }
+        .btn-sm { padding: 5px 8px; border: none; border-radius: 4px; font-size: 11px; color: #fff; margin-bottom: 4px; display: block; width: 100%; }
+    </style>
+</head>
+<body>
+
+    <div id="loginScreen">
+        <div class="login-box">
+            <h2>SN STORE অ্যাডমিন</h2>
+            <input type="text" id="adminPass" placeholder="পাসওয়ার্ড লিখুন: 1234">
+            <button id="loginBtn" type="button">লগইন করুন</button>
+            <div id="msg"></div>
+        </div>
+    </div>
+
+    <div id="dashboard">
+        <header>
+            <h3>SN STORE - অ্যাডমিন</h3>
+            <button id="logoutBtn" style="background:red; color:#fff; border:none; padding:6px 10px; border-radius:4px;">লগআউট</button>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" id="tProd">পণ্য ও স্টক</button>
+            <button class="tab-btn" id="tOrder">অর্ডার (<span id="orderCount">0</span>)</button>
+            <button class="tab-btn" id="tUser">কাস্টমার (<span id="userCount">0</span>)</button>
+        </div>
+
+        <div class="container">
+            <div id="productsTab">
+                <div class="card">
+                    <h4 style="margin-bottom: 10px; color: #f85606;">+ নতুন পণ্য যোগ করুন</h4>
+                    <form id="prodForm">
+                        <div class="form-group"><label>পণ্যের নাম *</label><input type="text" id="pName" required></div>
+                        <div class="form-group">
+                            <label>ক্যাটাগরি</label>
+                            <select id="pCategory">
+                                <option value="Electronics">ইলেকট্রনিক্স</option>
+                                <option value="Fashion">ফ্যাশন</option>
+                                <option value="Gadgets">গ্যাজেট</option>
+                                <option value="Others">অন্যান্য</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>বিক্রয় মূল্য (৳) *</label><input type="number" id="pPrice" required></div>
+                        <div class="form-group"><label>আগের দাম (৳)</label><input type="number" id="pOldPrice"></div>
+                        <div class="form-group"><label>গ্যালারি থেকে ছবি *</label><input type="file" id="pImgFile" accept="image/*" required></div>
+                        <div class="form-group">
+                            <label>স্টক অবস্থা</label>
+                            <select id="pStock">
+                                <option value="true">Stock In (স্টক আছে)</option>
+                                <option value="false">Stock Out (স্টক আউট)</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-add">পণ্য পাবলিশ করুন</button>
+                    </form>
+                </div>
+                <div class="card">
+                    <h4 style="margin-bottom: 10px;">সকল পণ্য</h4>
+                    <div id="adminProductList"></div>
+                </div>
+            </div>
+
+            <div id="ordersTab" style="display:none;">
+                <div class="card"><div id="adminOrderList"></div></div>
+            </div>
+
+            <div id="usersTab" style="display:none;">
+                <div class="card"><div id="adminUserList"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var products = [];
+        var orders = [];
+        var users = [];
+        try {
+            products = JSON.parse(localStorage.getItem('sn_admin_products')) || [];
+            orders = JSON.parse(localStorage.getItem('sn_orders')) || [];
+            users = JSON.parse(localStorage.getItem('sn_users')) || [];
+        } catch(e) {}
+
+        document.getElementById('loginBtn').addEventListener('click', function() {
+            var val = document.getElementById('adminPass').value.trim();
+            if (val === '1234') {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                renderAll();
+            } else {
+                document.getElementById('msg').innerText = 'ভুল পাসওয়ার্ড! 1234 লিখুন।';
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+        });
+
+        document.getElementById('tProd').onclick = function() { showTab('productsTab', this); };
+        document.getElementById('tOrder').onclick = function() { showTab('ordersTab', this); };
+        document.getElementById('tUser').onclick = function() { showTab('usersTab', this); };
+
+        function showTab(id, btn) {
+            document.getElementById('productsTab').style.display = 'none';
+            document.getElementById('ordersTab').style.display = 'none';
+            document.getElementById('usersTab').style.display = 'none';
+            document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+            document.getElementById(id).style.display = 'block';
+            btn.classList.add('active');
+        }
+
+        document.getElementById('prodForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var file = document.getElementById('pImgFile').files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                var img = new Image();
+                img.onload = function() {
+                    var canvas = document.createElement('canvas');
+                    var scale = 350 / img.width;
+                    canvas.width = 350;
+                    canvas.height = img.height * scale;
+                    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                    products.unshift({
+                        id: Date.now(),
+                        name: document.getElementById('pName').value,
+                        category: document.getElementById('pCategory').value,
+                        price: Number(document.getElementById('pPrice').value),
+                        oldPrice: Number(document.getElementById('pOldPrice').value) || 0,
+                        img: canvas.toDataURL('image/jpeg', 0.7),
+                        inStock: document.getElementById('pStock').value === 'true'
+                    });
+                    try { localStorage.setItem('sn_admin_products', JSON.stringify(products)); } catch(err) {}
+                    document.getElementById('prodForm').reset();
+                    renderAll();
+                    alert('পণ্য যোগ হয়েছে!');
+                };
+                img.src = ev.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function toggleStock(id) {
+            for (var i = 0; i < products.length; i++) {
+                if (products[i].id === id) products[i].inStock = !products[i].inStock;
+            }
+            try { localStorage.setItem('sn_admin_products', JSON.stringify(products)); } catch(err) {}
+            renderAll();
+        }
+
+        function delProd(id) {
+            products = products.filter(function(p) { return p.id !== id; });
+            try { localStorage.setItem('sn_admin_products', JSON.stringify(products)); } catch(err) {}
+            renderAll();
