@@ -11,26 +11,26 @@
         .login-box { background: #fff; padding: 25px; border-radius: 10px; width: 100%; max-width: 350px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
         .login-box h2 { color: #f85606; margin-bottom: 18px; }
         .login-box input { width: 100%; padding: 12px; margin-bottom: 14px; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
-        .login-box button { width: 100%; padding: 12px; background: #f85606; color: #fff; border: none; border-radius: 5px; font-weight: bold; font-size: 16px; }
+        .login-box button { width: 100%; padding: 12px; background: #f85606; color: #fff; border: none; border-radius: 5px; font-weight: bold; font-size: 16px; cursor: pointer; }
         #msg { color: red; font-size: 13px; margin-top: 10px; }
 
         #dashboard { display: none; }
         header { background: #1e293b; color: #fff; padding: 14px; display: flex; justify-content: space-between; align-items: center; }
         .tabs { display: flex; background: #fff; border-bottom: 1px solid #ddd; }
-        .tab-btn { flex: 1; padding: 12px; border: none; background: none; font-weight: bold; }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: none; font-weight: bold; cursor: pointer; }
         .tab-btn.active { color: #f85606; border-bottom: 3px solid #f85606; }
         .container { padding: 14px; max-width: 700px; margin: auto; }
         .card { background: #fff; padding: 15px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .form-group { margin-bottom: 10px; }
         .form-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; }
         .form-group input, .form-group select { width: 100%; padding: 9px; border: 1px solid #ccc; border-radius: 5px; }
-        .btn-add { background: #f85606; color: #fff; border: none; padding: 12px; width: 100%; border-radius: 5px; font-weight: bold; }
+        .btn-add { background: #f85606; color: #fff; border: none; padding: 12px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; }
         .prod-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 10px 0; gap: 10px; }
         .prod-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; }
         .badge { padding: 2px 6px; border-radius: 8px; font-size: 10px; color: #fff; }
         .in-stock { background: #16a34a; }
         .out-stock { background: #dc2626; }
-        .btn-sm { padding: 5px 8px; border: none; border-radius: 4px; font-size: 11px; color: #fff; margin-bottom: 4px; display: block; width: 100%; }
+        .btn-sm { padding: 5px 8px; border: none; border-radius: 4px; font-size: 11px; color: #fff; margin-bottom: 4px; display: block; width: 100%; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -38,7 +38,7 @@
     <div id="loginScreen">
         <div class="login-box">
             <h2>SN STORE অ্যাডমিন</h2>
-            <input type="text" id="adminPass" placeholder="পাসওয়ার্ড লিখুন: 1234">
+            <input type="password" id="adminPass" placeholder="পাসওয়ার্ড লিখুন (1234)">
             <button id="loginBtn" type="button">লগইন করুন</button>
             <div id="msg"></div>
         </div>
@@ -81,105 +81,105 @@
                                 <option value="false">Stock Out (স্টক আউট)</option>
                             </select>
                         </div>
-                        <button type="submit" class="btn-add">পণ্য পাবলিশ করুন</button>
+                        <button type="submit" class="btn-add" id="pubBtn">পণ্য পাবলিশ করুন</button>
                     </form>
                 </div>
                 <div class="card">
-                    <h4 style="margin-bottom: 10px;">সকল পণ্য</h4>
-                    <div id="adminProductList"></div>
+                    <h4 style="margin-bottom: 10px;">লাইভ পণ্যসমূহ</h4>
+                    <div id="adminProductList">লোড হচ্ছে...</div>
                 </div>
             </div>
 
             <div id="ordersTab" style="display:none;">
-                <div class="card"><div id="adminOrderList"></div></div>
+                <div class="card"><div id="adminOrderList">লোড হচ্ছে...</div></div>
             </div>
 
             <div id="usersTab" style="display:none;">
-                <div class="card"><div id="adminUserList"></div></div>
+                <div class="card"><div id="adminUserList">লোড হচ্ছে...</div></div>
             </div>
         </div>
     </div>
 
     <script>
-        var products = [];
-        var orders = [];
-        var users = [];
-        try {
-            products = JSON.parse(localStorage.getItem('sn_admin_products')) || [];
-            orders = JSON.parse(localStorage.getItem('sn_orders')) || [];
-            users = JSON.parse(localStorage.getItem('sn_users')) || [];
-        } catch(e) {}
+        const SUPABASE_URL = "https://supabase.co";
+        const SUPABASE_KEY = "sb_publishable_AsthiYjalxIKLYQ8Qw6UcA_442BXKsi";
+        const HEADERS = {
+            "apikey": SUPABASE_KEY,
+            "Authorization": "Bearer " + SUPABASE_KEY,
+            "Content-Type": "application/json",
+            "Prefer": "return=representation"
+        };
 
         document.getElementById('loginBtn').addEventListener('click', function() {
-            var val = document.getElementById('adminPass').value.trim();
+            const val = document.getElementById('adminPass').value.trim();
             if (val === '1234') {
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('dashboard').style.display = 'block';
-                renderAll();
+                loadAllData();
             } else {
-                document.getElementById('msg').innerText = 'ভুল পাসওয়ার্ড! 1234 লিখুন।';
+                document.getElementById('msg').innerText = 'ভুল পাসওয়ার্ড!';
             }
         });
 
         document.getElementById('logoutBtn').addEventListener('click', function() {
-            document.getElementById('dashboard').style.display = 'none';
-            document.getElementById('loginScreen').style.display = 'flex';
+            location.reload();
         });
 
         document.getElementById('tProd').onclick = function() { showTab('productsTab', this); };
-        document.getElementById('tOrder').onclick = function() { showTab('ordersTab', this); };
-        document.getElementById('tUser').onclick = function() { showTab('usersTab', this); };
+        document.getElementById('tOrder').onclick = function() { showTab('ordersTab', this); loadOrders(); };
+        document.getElementById('tUser').onclick = function() { showTab('usersTab', this); loadUsers(); };
 
         function showTab(id, btn) {
             document.getElementById('productsTab').style.display = 'none';
             document.getElementById('ordersTab').style.display = 'none';
             document.getElementById('usersTab').style.display = 'none';
-            document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(id).style.display = 'block';
             btn.classList.add('active');
         }
 
-        document.getElementById('prodForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            var file = document.getElementById('pImgFile').files[0];
-            if (!file) return;
-            var reader = new FileReader();
-            reader.onload = function(ev) {
-                var img = new Image();
-                img.onload = function() {
-                    var canvas = document.createElement('canvas');
-                    var scale = 350 / img.width;
-                    canvas.width = 350;
-                    canvas.height = img.height * scale;
-                    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                    products.unshift({
-                        id: Date.now(),
-                        name: document.getElementById('pName').value,
-                        category: document.getElementById('pCategory').value,
-                        price: Number(document.getElementById('pPrice').value),
-                        oldPrice: Number(document.getElementById('pOldPrice').value) || 0,
-                        img: canvas.toDataURL('image/jpeg', 0.7),
-                        inStock: document.getElementById('pStock').value === 'true'
-                    });
-                    try { localStorage.setItem('sn_admin_products', JSON.stringify(products)); } catch(err) {}
-                    document.getElementById('prodForm').reset();
-                    renderAll();
-                    alert('পণ্য যোগ হয়েছে!');
-                };
-                img.src = ev.target.result;
-            };
-            reader.readAsDataURL(file);
-        });
-
-        function toggleStock(id) {
-            for (var i = 0; i < products.length; i++) {
-                if (products[i].id === id) products[i].inStock = !products[i].inStock;
-            }
-            try { localStorage.setItem('sn_admin_products', JSON.stringify(products)); } catch(err) {}
-            renderAll();
+        async function loadAllData() {
+            await loadProducts();
+            await loadOrders();
+            await loadUsers();
         }
 
-        function delProd(id) {
-            products = products.filter(function(p) { return p.id !== id; });
-            try { localStorage.setItem('sn_admin_products', JSON.stringify(products)); } catch(err) {}
-            renderAll();
+        async function loadProducts() {
+            const res = await fetch(`${SUPABASE_URL}/products?select=*&order=id.desc`, { headers: HEADERS });
+            const products = await res.json();
+            const pList = document.getElementById('adminProductList');
+            if (!Array.isArray(products) || products.length === 0) {
+                pList.innerHTML = '<p style="color:#888;">কোনো পণ্য নেই।</p>';
+                return;
+            }
+            pList.innerHTML = products.map(p => `
+                <div class="prod-item">
+                    <img src="${p.img}">
+                    <div style="flex:1;">
+                        <h4>${p.name}</h4>
+                        <p>৳${p.price} <span class="badge ${p.in_stock ? 'in-stock' : 'out-stock'}">${p.in_stock ? 'Stock In' : 'Stock Out'}</span></p>
+                    </div>
+                    <div>
+                        <button class="btn-sm" style="background:#2563eb;" onclick="toggleStock(${p.id}, ${!p.in_stock})">স্টক বদলান</button>
+                        <button class="btn-sm" style="background:#dc2626;" onclick="delProd(${p.id})">ডিলিট</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.getElementById('prodForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const file = document.getElementById('pImgFile').files[0];
+            if (!file) return;
+
+            const btn = document.getElementById('pubBtn');
+            btn.innerText = "পাবলিশ হচ্ছে..."; btn.disabled = true;
+
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                const img = new Image();
+                img.onload = async function() {
+                    const canvas = document.createElement('canvas');
+                    const scale = 350 / img.width;
+                    canvas.width = 350;
+                    canvas.height = img.height * scale;
