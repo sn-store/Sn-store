@@ -5,23 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SN STORE - Online Shopping in Bangladesh</title>
     <style>
-        :root {
-            --daraz-orange: #f85606;
-            --daraz-dark: #212121;
-            --bg-light: #eff0f5;
-            --white: #ffffff;
-        }
+        :root { --daraz-orange: #f85606; --daraz-dark: #212121; --bg-light: #eff0f5; --white: #ffffff; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background-color: var(--bg-light); color: var(--daraz-dark); padding-bottom: 65px; }
 
-        /* Daraz Header */
-        header {
-            background: linear-gradient(90deg, #f85606, #ff6a00);
-            padding: 10px 12px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+        header { background: linear-gradient(90deg, #f85606, #ff6a00); padding: 10px 12px; position: sticky; top: 0; z-index: 100; }
         .header-top { display: flex; align-items: center; gap: 10px; }
         .brand-name { color: var(--white); font-weight: 800; font-size: 18px; white-space: nowrap; }
         .search-bar { flex: 1; display: flex; background: var(--white); border-radius: 6px; padding: 3px; align-items: center; }
@@ -30,7 +18,6 @@
         .cart-btn { position: relative; color: white; font-size: 20px; cursor: pointer; padding: 2px 5px; }
         .cart-badge { position: absolute; top: -4px; right: -4px; background: #ffe600; color: #000; font-size: 10px; font-weight: 800; padding: 1px 5px; border-radius: 10px; }
 
-        /* Promo Slider */
         .slider-container { margin: 10px 12px; border-radius: 10px; overflow: hidden; height: 130px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
         .slide { width: 100%; height: 100%; display: none; padding: 18px; color: white; flex-direction: column; justify-content: center; }
         .slide.active { display: flex; }
@@ -39,7 +26,6 @@
         .slide h2 { font-size: 18px; margin-bottom: 4px; }
         .slide p { font-size: 12px; opacity: 0.95; }
 
-        /* Categories */
         .cat-section { background: var(--white); margin: 0 12px 10px; padding: 12px 8px; border-radius: 10px; }
         .cat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; text-align: center; }
         .cat-item { cursor: pointer; }
@@ -47,12 +33,10 @@
         .cat-item.active .cat-icon { background: var(--daraz-orange); border-color: var(--daraz-orange); }
         .cat-name { font-size: 11px; font-weight: 500; }
 
-        /* Flash Sale Bar */
         .flash-sale { background: var(--white); margin: 0 12px 10px; padding: 10px 12px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
         .flash-title { color: var(--daraz-orange); font-weight: 800; font-size: 14px; }
         .timer span { background: var(--daraz-dark); color: white; padding: 2px 5px; border-radius: 3px; font-size: 11px; font-weight: bold; }
 
-        /* Product Grid */
         .section-header { padding: 4px 12px 8px; font-size: 15px; font-weight: 700; }
         .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 0 12px; }
         .product-card { background: var(--white); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.06); display: flex; flex-direction: column; position: relative; }
@@ -71,7 +55,6 @@
         .btn-buy-now { flex: 1; background: var(--daraz-orange); color: white; border: none; padding: 5px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; }
         .empty-msg { grid-column: span 2; text-align: center; padding: 40px 15px; background: var(--white); border-radius: 8px; color: #777; font-size: 14px; }
 
-        /* Modals */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 200; justify-content: center; align-items: flex-end; }
         .modal-content { background: var(--white); width: 100%; max-width: 500px; border-radius: 14px 14px 0 0; padding: 18px; max-height: 88vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 12px; }
@@ -84,7 +67,6 @@
         .auth-tab.active { background: var(--daraz-orange); color: #fff; }
         .auth-notice { background: #fff3ed; border-left: 3px solid var(--daraz-orange); padding: 8px 10px; font-size: 12px; margin-bottom: 12px; color: #333; }
 
-        /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--white); display: flex; justify-content: space-around; padding: 8px 0; border-top: 1px solid #e0e0e0; z-index: 90; }
         .nav-btn { text-align: center; font-size: 11px; color: #666; cursor: pointer; }
         .nav-btn.active { color: var(--daraz-orange); font-weight: bold; }
@@ -131,7 +113,9 @@
     </div>
 
     <div class="section-header">Just For You (সকল পণ্য)</div>
-    <div class="product-grid" id="productGrid"></div>
+    <div class="product-grid" id="productGrid">
+        <div class="empty-msg">পণ্য লোড হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...</div>
+    </div>
 
     <!-- Account Registration & Login Modal -->
     <div class="modal" id="authModal">
@@ -139,3 +123,8 @@
             <div class="modal-header">
                 <h3>SN STORE অ্যাকাউন্ট</h3>
                 <span style="font-size:22px; cursor:pointer;" onclick="closeAuthModal()">&times;</span>
+            </div>
+            <div id="authNotice" class="auth-notice" style="display:none;">
+                অর্ডার সম্পন্ন করার জন্য অনুগ্রহ করে আগে একটি নতুন অ্যাকাউন্ট তৈরি করুন অথবা লগইন করুন।
+            </div>
+
